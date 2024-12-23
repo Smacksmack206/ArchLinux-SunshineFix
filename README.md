@@ -1,53 +1,101 @@
-# Script to install and configure sunshine for systemd on Arch Linux tested on cachyOS
+# Sunshine Installation and Configuration Script for Arch Linux (tested on CachyOS)
 
-# Add LizardByte repository to /etc/pacman.conf (requires root)
-# This allows installing sunshine from the LizardByte repository.
+This script automates the installation and configuration of Sunshine on Arch Linux, including setting necessary permissions, capabilities, and creating a systemd service for automatic startup at boot.
 
-# Update package lists using pacman (requires root)
-# This ensures that pacman has the latest package information,
-# including the newly added LizardByte repository.
+## Features
 
-# Install sunshine if it's not already installed (requires root)
-# Checks if the 'sunshine' command exists. If not, it installs it.
+*   Adds the LizardByte repository to `/etc/pacman.conf` (optional, with a warning if it fails).
+*   Updates package lists using `pacman`.
+*   Installs Sunshine if it's not already present.
+*   Dynamically detects the installed Sunshine version.
+*   Creates a wrapper script (`archSunshine.sh`) in `/usr/local/bin` to manage permissions and capabilities.
+*   Sets appropriate permissions and the `cap_sys_admin` capability for Sunshine.
+*   Creates a systemd service (`archSunshine.service`) to ensure Sunshine starts at boot.
+*   Option to start the service immediately after installation using the `--start` flag.
+*   Comprehensive error handling for robust execution.
 
-# Configuration variables
-# Path where the sunshine wrapper script will be installed
-# Name of the systemd service
-# Path to the systemd service file
+## Prerequisites
 
-# Dynamically get the current user
-# Gets the username of the user running the script
+*   Arch Linux installed and configured.
+*   `sudo` privileges.
 
-# Target sunshine version (extracted using grep)
-# This extracts the version number from the sunshine executable's filename.
-# For example, if /usr/bin/sunshine-0.23.1 exists, it will extract "0.23.1".
+## Installation
 
-# Check if the target version could be determined. Abort if not.
+1.  **Download the script:** Download the `install-sunshine.sh` script.
+2.  **Make it executable:**
 
-# Versioned executable and path variables
-# Constructs the full name and path of the versioned executable
+    ```bash
+    chmod +x install-sunshine.sh
+    ```
 
-# Sunshine script content (embedded)
-# This is the script that will be installed as archSunshine.sh.
-# It sets the necessary permissions and capabilities for sunshine.
+3.  **Run the script with `sudo`:**
 
-# Replace the target version placeholder in the script content
-# This ensures the embedded script uses the correct sunshine version.
+    ```bash
+    sudo ./install-sunshine.sh
+    ```
 
-# Create/Overwrite the sunshine script (requires root)
-# This creates or overwrites the archSunshine.sh script in /usr/local/bin.
+    To also start the service immediately after installation:
 
-# Make the sunshine script executable (requires root)
+    ```bash
+    sudo ./install-sunshine.sh --start
+    ```
 
-# Create the systemd service file (requires root)
-# This creates the systemd service file that will run archSunshine.sh at boot.
+## Script Breakdown
 
-# Enable the systemd service (requires root)
-# This enables the service to start at boot.
+The script performs the following steps:
 
-# Start the service immediately (optional, only if the --start argument is provided)
-# This starts the service without requiring a reboot.
+1.  **Add LizardByte Repository (Optional):**
+    *   Adds the LizardByte repository to `/etc/pacman.conf` to enable installation of Sunshine.
+    *   If the repository is already present or adding it fails, a warning is displayed, but the script continues.
 
-# Success message
+2.  **Update Package Lists:**
+    *   Runs `pacman -Syu --noconfirm` to update the local package database and synchronize with remote repositories.
 
-# Exit code
+3.  **Install Sunshine:**
+    *   Checks if Sunshine is already installed.
+    *   If not installed, attempts to install it using `pacman -S sunshine --noconfirm`.
+    *   If the installation fails, the script aborts.
+
+4.  **Configuration:**
+    *   Sets variables for the script destination, service name, and service file path.
+    *   Dynamically retrieves the current user's username.
+    *   Dynamically extracts the installed Sunshine version from the executable filename.
+    *   Constructs the full path to the versioned Sunshine executable.
+
+5.  **Create Wrapper Script (`archSunshine.sh`):**
+    *   Creates a wrapper script at `/usr/local/bin/archSunshine.sh`.
+    *   This script sets the necessary permissions (`a+x`) and the `cap_sys_admin` capability for the Sunshine executable.
+    *   Uses `sed` to correctly insert the version into the script.
+
+6.  **Create Systemd Service (`archSunshine.service`):**
+    *   Creates a systemd service file at `/etc/systemd/system/archSunshine.service`.
+    *   This service ensures that the `archSunshine.sh` script is executed at boot.
+    *   Configured to run as the current user.
+
+7.  **Enable Systemd Service:**
+    *   Enables the systemd service to start automatically at boot.
+
+8.  **Start Service (Optional):**
+    *   If the `--start` flag is provided, the script starts the service immediately.
+
+## Troubleshooting
+
+*   **Repository Issues:** If you encounter issues adding the LizardByte repository, you can add it manually by editing `/etc/pacman.conf`.
+*   **Sunshine Installation Issues:** Check your internet connection and ensure the LizardByte repository is working correctly.
+*   **Service Startup Issues:** Check the systemd service status using `systemctl status archSunshine.service` for any error messages.
+*   **Permissions Issues:** Ensure the `archSunshine.sh` script has execute permissions (`chmod +x /usr/local/bin/archSunshine.sh`).
+
+## Uninstallation
+
+To uninstall, you'll need to manually perform the following steps:
+
+1. Stop the service: `sudo systemctl stop archSunshine.service`
+2. Disable the service: `sudo systemctl disable archSunshine.service`
+3. Remove the service file: `sudo rm /etc/systemd/system/archSunshine.service`
+4. Remove the wrapper script: `sudo rm /usr/local/bin/archSunshine.sh`
+5. (Optional) Remove sunshine: `sudo pacman -R sunshine`
+6. (Optional) Remove the Lizardbyte repository from `/etc/pacman.conf`
+
+## License
+
+This script is licensed under the GNU General Public License v3.0.
