@@ -21,23 +21,23 @@ This script automates the installation and configuration of Sunshine on Arch Lin
 
 ## Installation
 
-1.  **Download the script:** Download the `install-sunshine.sh` script.
+1.  **Download the script:** Download the `archSunshine.sh` script.
 2.  **Make it executable:**
 
     ```bash
-    chmod +x install-sunshine.sh
+    chmod +x archSunshine.sh
     ```
 
 3.  **Run the script with `sudo`:**
 
     ```bash
-    sudo ./install-sunshine.sh
+    sudo ./archSunshine.sh
     ```
 
     To also start the service immediately after installation:
 
     ```bash
-    sudo ./install-sunshine.sh --start
+    sudo ./archSunshine.sh --start
     ```
 
 ## Script Breakdown
